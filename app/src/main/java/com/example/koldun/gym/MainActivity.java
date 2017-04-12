@@ -11,12 +11,22 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.os.SystemClock;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,OnLoadCompleteListener {
 
     Chronometer mChronometer;
     boolean running;
     Button mButton;
+    SoundPool sp;
+    int soundIdShot;
+    TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,18 +35,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        running = false;
+        sp = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        sp.setOnLoadCompleteListener(this);
 
+        try {
+            soundIdShot = sp.load(this, R.raw.wav, 1);
+        }catch (Exception o)  {
+            Toast.makeText(this, "Нажата кнопка ОК", Toast.LENGTH_LONG).show();
+        }
+
+
+        running = false;
         mChronometer = (Chronometer) findViewById(R.id.chronometer2);
         mChronometer.setFormat("%s");
 
         mButton = (Button)findViewById(R.id.button);
         mButton.setOnClickListener(this);
 
+        mTextView = (TextView) findViewById(R.id.textView);
+
+
 
         mChronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
+
+                long elapse =  (SystemClock.elapsedRealtime()- mChronometer.getBase())/1000;
+                float volume = ((float)elapse)/60;
+
+                mTextView.setText(Long.toString(elapse));
+
+                if (elapse == 40)
+                    sp.play(soundIdShot, volume, volume, 0, 0, 1);
+                if (elapse == 50)
+                    sp.play(soundIdShot, volume, volume, 0, 0, 1);
+                if (elapse == 60)
+                    sp.play(soundIdShot, volume, volume, 0, 0, 1);
 
             }
         });
@@ -81,12 +115,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mChronometer.setBase(SystemClock.elapsedRealtime());
             mChronometer.start();
             mButton.setText("Stop");
+            sp.play(soundIdShot, 1, 1, 0, 0, 1);
 
         }else{
             mButton.setText("Start");
             mChronometer.stop();
 
         }
+
+    }
+
+    @Override
+    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
 
     }
 }
