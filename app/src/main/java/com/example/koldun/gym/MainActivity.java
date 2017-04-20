@@ -1,5 +1,6 @@
 package com.example.koldun.gym;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,7 +20,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,OnLoadCompleteListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     Chronometer mChronometer;
     boolean running;
@@ -35,8 +36,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         sp = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        sp.setOnLoadCompleteListener(this);
 
         try {
             soundIdShot = sp.load(this, R.raw.wav, 1);
@@ -64,13 +66,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 float volume = ((float)elapse)/60;
 
                 mTextView.setText(Long.toString(elapse));
-
+                if (elapse == 30)
+                    sp.play(soundIdShot, volume, volume, 0, 0, 1);
                 if (elapse == 40)
                     sp.play(soundIdShot, volume, volume, 0, 0, 1);
                 if (elapse == 50)
                     sp.play(soundIdShot, volume, volume, 0, 0, 1);
-                if (elapse == 60)
+                if (elapse == 60) {
                     sp.play(soundIdShot, volume, volume, 0, 0, 1);
+                    onClick(mChronometer);
+                }
 
             }
         });
@@ -125,8 +130,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
 
-    }
 }
